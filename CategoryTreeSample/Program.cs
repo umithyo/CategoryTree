@@ -45,6 +45,17 @@ namespace ConsoleApp
     public Category Parent { get; set; }
     public List<Category> Children { get; set; } = new List<Category>();
     public DepthDefinition DepthDefinition { get; set; } = new DepthDefinition();
+
+    public Category()
+    {
+
+    }
+
+    public Category(bool withDepthDefinitons)
+    {
+      if (withDepthDefinitons)
+        this.DepthDefinition = new DepthDefinition();
+    }
   }
 
   static class CategoryTree
@@ -75,10 +86,10 @@ namespace ConsoleApp
     private static void SeedChildren(this Category parentCat, List<Category> root, SeedOptions options, int? depth = null)
     {
       var r = new Random();
-      depth = (depth != null ? depth : (parentCat.DepthDefinition != null ? parentCat.DepthDefinition.Depth : options.DepthDefinition.Depth)) - 1;
+      depth = (depth != null ? depth : ((parentCat.DepthDefinition != null && parentCat.DepthDefinition.Depth > 0) ? parentCat.DepthDefinition.Depth : options.DepthDefinition.Depth)) - 1;
       for (int k = 1; k <= options.ChildrenCount; k++)
       {
-        var child = new Category { Name = $"Child", Parent = parentCat, Id = $"{parentCat.Id}_{k}" };
+        var child = new Category(true) { Name = $"Child", Parent = parentCat, Id = $"{parentCat.Id}_{k}" };
         child.DepthDefinition.MaxDepth = r.Next(1, 4);
         if (depth > 0)
         {
