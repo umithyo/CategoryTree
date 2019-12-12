@@ -13,7 +13,7 @@ namespace ConsoleApp
       var r = new Random();
       List<Category> categories = new List<Category>();
       categories.Seed(options => {
-        options.ChildrenCount = 7;
+        options.ChildrenCount = r.Next(2, 5);
         options.DepthDefinition.Depth = r.Next(1, 4);
         options.ParentCount = 2;
         
@@ -42,7 +42,7 @@ namespace ConsoleApp
     public string Name { get; set; }
     public Category Parent { get; set; }
     public List<Category> Children { get; set; } = new List<Category>();
-    public DepthDefinition DepthDefinition { get; set; } = new DepthDefinition();
+    public DepthDefinition DepthDefinition { get; set; }
   }
 
   static class CategoryTree
@@ -72,13 +72,13 @@ namespace ConsoleApp
 
     private static void SeedChildren(this Category parentCat, List<Category> root, SeedOptions options, int? depth = null)
     {
-      var r = new Random();
-      parentCat.DepthDefinition.Depth = r.Next(2, 6);
+      //var r = new Random();
+      //parentCat.DepthDefinition.Depth = r.Next(2, 6);
       depth = (depth != null ? depth : (parentCat.DepthDefinition != null ? parentCat.DepthDefinition.Depth : options.DepthDefinition.Depth)) - 1;
       for (int k = 1; k <= options.ChildrenCount; k++)
       {
         var child = new Category { Name = $"Child", Parent = parentCat, Id = $"{parentCat.Id}_{k}" };
-        child.DepthDefinition.Depth = r.Next(2, 7);
+        //child.DepthDefinition.Depth = r.Next(2, 7);
         if (depth > 0)
         {
           root.Add(child);
@@ -116,7 +116,7 @@ namespace ConsoleApp
       StringBuilder sb = stringBuilder ?? new StringBuilder();
       foreach (var child in parent.Children)
       {
-        depth = depth != null ? depth : (child.DepthDefinition != null ? child.DepthDefinition.Depth : 0);
+        depth = depth ?? 1;
         sb.Append($"|{"-".Repeat(depth.Value)}>{child.Name} Level: {child.Id}\n");
         if (child.Children.Count > 0)
         {
