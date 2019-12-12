@@ -14,9 +14,9 @@ namespace ConsoleApp
       List<Category> categories = new List<Category>();
       categories.Seed(options =>
       {
-        options.ChildrenCount = r.Next(2, 5);
-        options.DepthDefinition.Depth = r.Next(2, 4);
-        options.ParentCount = 2;
+        options.ChildrenCount = 2;
+        options.DepthDefinition.Depth = 8;
+        options.ParentCount = 3 ;
 
       });
       categories.AppendChildren();
@@ -90,7 +90,7 @@ namespace ConsoleApp
       for (int k = 1; k <= options.ChildrenCount; k++)
       {
         var child = new Category(true) { Name = $"Child", Parent = parentCat, Id = $"{parentCat.Id}_{k}" };
-        child.DepthDefinition.MaxDepth = r.Next(1, 4);
+        child.DepthDefinition.MaxDepth = r.Next(4, 8);
         if (depth > 0)
         {
           root.Add(child);
@@ -128,12 +128,12 @@ namespace ConsoleApp
       StringBuilder sb = stringBuilder ?? new StringBuilder();
       foreach (var child in parent.Children)
       {
-        var maxDepth = child.Children.Count;
+        int? maxDepth = null;
         if (child.DepthDefinition != null && child.DepthDefinition.MaxDepth > 0)
           maxDepth = child.DepthDefinition.MaxDepth;
 
         depth = depth ?? 1;
-        if (depth < maxDepth)
+        if (maxDepth != null ? depth < maxDepth : true)
         {
           sb.Append($"|{"-".Repeat(depth.Value)}>{child.Name} Level: {child.Id}\n");
           if (child.Children.Count > 0)
