@@ -12,12 +12,13 @@ namespace ConsoleApp
     {
       var r = new Random();
       List<Category> categories = new List<Category>();
-      categories.Seed(options => {
+      categories.Seed(options =>
+      {
         options.ChildrenCount = r.Next(2, 5);
-        options.DepthDefinition.Depth = r.Next(1, 4);
+        options.DepthDefinition.Depth = r.Next(2, 4);
         options.ParentCount = 2;
-        
-        });
+
+      });
       categories.AppendChildren();
       var s = categories.Where(x => x.Parent == null).ToList().GetTree();
       Console.Write(s);
@@ -27,6 +28,7 @@ namespace ConsoleApp
   public class DepthDefinition
   {
     public int Depth { get; set; }
+    public int MaxDepth { get; set; }
   }
 
   public class SeedOptions
@@ -42,7 +44,7 @@ namespace ConsoleApp
     public string Name { get; set; }
     public Category Parent { get; set; }
     public List<Category> Children { get; set; } = new List<Category>();
-    public DepthDefinition DepthDefinition { get; set; }
+    public DepthDefinition DepthDefinition { get; set; } = new DepthDefinition();
   }
 
   static class CategoryTree
@@ -72,13 +74,12 @@ namespace ConsoleApp
 
     private static void SeedChildren(this Category parentCat, List<Category> root, SeedOptions options, int? depth = null)
     {
-      //var r = new Random();
-      //parentCat.DepthDefinition.Depth = r.Next(2, 6);
+      var r = new Random();
       depth = (depth != null ? depth : (parentCat.DepthDefinition != null ? parentCat.DepthDefinition.Depth : options.DepthDefinition.Depth)) - 1;
       for (int k = 1; k <= options.ChildrenCount; k++)
       {
         var child = new Category { Name = $"Child", Parent = parentCat, Id = $"{parentCat.Id}_{k}" };
-        //child.DepthDefinition.Depth = r.Next(2, 7);
+        child.DepthDefinition.MaxDepth = r.Next(1, 4);
         if (depth > 0)
         {
           root.Add(child);
@@ -116,11 +117,18 @@ namespace ConsoleApp
       StringBuilder sb = stringBuilder ?? new StringBuilder();
       foreach (var child in parent.Children)
       {
+        var maxDepth = child.Children.Count;
+        if (child.DepthDefinition != null && child.DepthDefinition.MaxDepth > 0)
+          maxDepth = child.DepthDefinition.MaxDepth;
+
         depth = depth ?? 1;
-        sb.Append($"|{"-".Repeat(depth.Value)}>{child.Name} Level: {child.Id}\n");
-        if (child.Children.Count > 0)
+        if (depth < maxDepth)
         {
-          child.GetChildTree(sb, depth + 1);
+          sb.Append($"|{"-".Repeat(depth.Value)}>{child.Name} Level: {child.Id}\n");
+          if (child.Children.Count > 0)
+          {
+            child.GetChildTree(sb, depth + 1);
+          }
         }
       }
       return sb;
