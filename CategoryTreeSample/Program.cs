@@ -29,6 +29,7 @@ namespace ConsoleApp
   {
     public int Depth { get; set; }
     public int MaxDepth { get; set; }
+    public int MaxChildren { get; set; }
   }
 
   public class SeedOptions
@@ -71,12 +72,13 @@ namespace ConsoleApp
 
     public static List<Category> Seed(this List<Category> list, Action<SeedOptions> options)
     {
-
+      var r = new Random();
       var _options = new SeedOptions();
       options(_options);
       for (int i = 1; i <= _options.ParentCount; i++)
       {
         var parentCat = new Category { Name = "Parent", Parent = null, Id = i.ToString() };
+        parentCat.DepthDefinition.MaxChildren = r.Next(3, 7);
         list.Add(parentCat);
         parentCat.SeedChildren(list, _options);
       }
@@ -87,10 +89,11 @@ namespace ConsoleApp
     {
       var r = new Random();
       depth = (depth != null ? depth : ((parentCat.DepthDefinition != null && parentCat.DepthDefinition.Depth > 0) ? parentCat.DepthDefinition.Depth : options.DepthDefinition.Depth)) - 1;
-      for (int k = 1; k <= options.ChildrenCount; k++)
+      for (int k = 1; k <= ((parentCat.DepthDefinition != null && parentCat.DepthDefinition.MaxChildren > 0) ? parentCat.DepthDefinition.MaxChildren : options.ChildrenCount); k++)
       {
         var child = new Category(true) { Name = $"Child", Parent = parentCat, Id = $"{parentCat.Id}_{k}" };
         child.DepthDefinition.MaxDepth = r.Next(4, 8);
+        child.DepthDefinition.MaxChildren = r.Next(2, 4);
         if (depth > 0)
         {
           root.Add(child);
